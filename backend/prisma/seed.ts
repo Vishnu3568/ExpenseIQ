@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import process from 'process';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const process: any;
 
 const prisma = new PrismaClient();
 

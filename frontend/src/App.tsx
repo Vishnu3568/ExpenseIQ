@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Activity, Moon, Sun, ShieldCheck } from 'lucide-react';
 
 function App() {
