@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes';
+import categoryRoutes from './routes/categoryRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 // Register API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Health status verification endpoint
 app.get('/health', (_req: Request, res: Response) => {
