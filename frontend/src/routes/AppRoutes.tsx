@@ -5,6 +5,7 @@ import { Register } from '../pages/Register';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { Categories } from '../pages/Categories';
 import { Transactions } from '../pages/Transactions';
+import { Dashboard } from '../pages/Dashboard';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -43,7 +44,7 @@ export const AppRoutes: React.FC = () => {
           {/* Index redirection to Dashboard */}
           <Route index element={<Navigate to="/dashboard" replace />} />
           
-          <Route path="dashboard" element={<PlaceholderPage title="Dashboard" />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="categories" element={<Categories />} />
           <Route path="budgets" element={<PlaceholderPage title="Budgets" />} />
