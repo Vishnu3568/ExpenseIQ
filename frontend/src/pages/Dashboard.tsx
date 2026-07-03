@@ -188,7 +188,7 @@ export const Dashboard: React.FC = () => {
                       <XAxis dataKey="month" stroke={chartTheme.text} fontSize={11} />
                       <YAxis stroke={chartTheme.text} fontSize={11} />
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: 11, pt: 10 }} />
+                      <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
                       <Line type="monotone" dataKey="income" name="Income" stroke="#10B981" strokeWidth={2.5} dot={{ r: 4 }} />
                       <Line type="monotone" dataKey="expense" name="Expense" stroke="#EF4444" strokeWidth={2.5} dot={{ r: 4 }} />
                     </LineChart>
