@@ -75,17 +75,20 @@ model Transaction {
 }
 
 model Budget {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  amount     Decimal  @db.Decimal(12, 2)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name       String
+  amount     Decimal   @db.Decimal(12, 2)
+  type       String    @default("CATEGORY") // "OVERALL" or "CATEGORY"
+  status     String    @default("ACTIVE")   // "ACTIVE", "COMPLETED", "ARCHIVED"
+  notes      String?
   startDate  DateTime
   endDate    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  @@unique([userId, categoryId, startDate, endDate])
   @@index([userId, startDate, endDate])
 }

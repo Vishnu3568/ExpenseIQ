@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import insightRoutes from './routes/insightRoutes';
+import budgetRoutes from './routes/budgetRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/insights', insightRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 // Health status verification endpoint
 app.get('/health', (_req: Request, res: Response) => {
