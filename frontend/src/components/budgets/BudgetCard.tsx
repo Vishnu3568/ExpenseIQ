@@ -1,7 +1,6 @@
 import React from 'react';
 import { BudgetProgress } from '../../types/budget';
 import { Calendar, AlertTriangle, Edit2, Trash2 } from 'lucide-react';
-import { Button } from '../ui/Button';
 
 interface BudgetCardProps {
   budget: BudgetProgress;
@@ -157,22 +156,20 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-          <Button
-            size="sm"
-            variant="ghost"
+          <button
             onClick={() => onEditClick(budget)}
-            className="h-7 w-7 p-0 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400"
+            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+            title="Edit budget"
           >
             <Edit2 className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
+          </button>
+          <button
             onClick={() => onDeleteClick(budget.id)}
-            className="h-7 w-7 p-0 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400"
+            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+            title="Delete budget"
           >
             <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>
