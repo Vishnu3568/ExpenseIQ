@@ -8,6 +8,7 @@ import categoryRoutes from './routes/categoryRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import insightRoutes from './routes/insightRoutes';
 import budgetRoutes from './routes/budgetRoutes';
+import reportRoutes from './routes/reportRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/insights', insightRoutes);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Health status verification endpoint
 app.get('/health', (_req: Request, res: Response) => {

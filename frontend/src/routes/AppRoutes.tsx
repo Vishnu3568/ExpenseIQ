@@ -7,6 +7,7 @@ import { Categories } from '../pages/Categories';
 import { Transactions } from '../pages/Transactions';
 import { Dashboard } from '../pages/Dashboard';
 import { Budgets } from '../pages/Budgets';
+import { Reports } from '../pages/Reports';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -49,7 +50,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="transactions" element={<Transactions />} />
           <Route path="categories" element={<Categories />} />
           <Route path="budgets" element={<Budgets />} />
-          <Route path="reports" element={<PlaceholderPage title="Reports" />} />
+          <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<PlaceholderPage title="Settings" />} />
         </Route>
 

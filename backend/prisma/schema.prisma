@@ -19,6 +19,7 @@ model User {
   categories    Category[]
   budgets       Budget[]
   refreshTokens RefreshToken[]
+  reports       Report[]
 }
 
 model RefreshToken {
@@ -91,4 +92,18 @@ model Budget {
   updatedAt  DateTime  @updatedAt
 
   @@index([userId, startDate, endDate])
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  type      String
+  filters   Json
+  template  String   @default("professional")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
