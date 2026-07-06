@@ -93,9 +93,9 @@ export const QueryBuilderService = {
       }
     } else if (field === 'date') {
       if (Array.isArray(value)) {
-        parsedValue = value.map((v) => new Date(v as any));
+        parsedValue = value.map((v) => new Date(v as string | number | Date));
       } else {
-        parsedValue = new Date(value as any);
+        parsedValue = new Date(value as string | number | Date);
       }
     }
 
