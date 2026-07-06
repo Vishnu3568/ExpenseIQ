@@ -14,7 +14,8 @@ import {
   Sun,
   Moon,
   User as UserIcon,
-  ChevronDown
+  ChevronDown,
+  Compass
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -58,6 +59,7 @@ export const DashboardLayout: React.FC = () => {
     { name: 'Categories', path: '/categories', icon: <FolderTree className="h-5 w-5" /> },
     { name: 'Budgets', path: '/budgets', icon: <Landmark className="h-5 w-5" /> },
     { name: 'Reports', path: '/reports', icon: <BarChart3 className="h-5 w-5" /> },
+    { name: 'Data Intelligence', path: '/intelligence', icon: <Compass className="h-5 w-5" /> },
     { name: 'Settings', path: '/settings', icon: <Settings className="h-5 w-5" /> },
   ];
 

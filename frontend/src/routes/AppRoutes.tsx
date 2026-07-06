@@ -8,6 +8,7 @@ import { Transactions } from '../pages/Transactions';
 import { Dashboard } from '../pages/Dashboard';
 import { Budgets } from '../pages/Budgets';
 import { Reports } from '../pages/Reports';
+import { DataIntelligence } from '../pages/DataIntelligence';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -51,6 +52,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="categories" element={<Categories />} />
           <Route path="budgets" element={<Budgets />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="intelligence" element={<DataIntelligence />} />
           <Route path="settings" element={<PlaceholderPage title="Settings" />} />
         </Route>
 
