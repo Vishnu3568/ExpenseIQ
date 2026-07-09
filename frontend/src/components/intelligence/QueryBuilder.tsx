@@ -319,7 +319,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                       type={ruleItem.field === 'date' ? 'date' : ruleItem.field === 'amount' ? 'number' : 'text'}
                       placeholder={ruleItem.field === 'amount' ? '0.00' : 'Filter parameter...'}
                       className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2 py-1 text-xs text-slate-755 dark:text-slate-200 focus:outline-none"
-                      value={ruleItem.value || ''}
+                      value={(ruleItem.value as string) || ''}
                       onChange={(e) => handleRuleChange(idx, { ...ruleItem, value: e.target.value })}
                     />
                   )}

@@ -2,13 +2,13 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from '../pages/Login';
 import { Register } from '../pages/Register';
-import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { Categories } from '../pages/Categories';
 import { Transactions } from '../pages/Transactions';
 import { Dashboard } from '../pages/Dashboard';
 import { Budgets } from '../pages/Budgets';
 import { Reports } from '../pages/Reports';
 import { DataIntelligence } from '../pages/DataIntelligence';
+import { Workspace } from '../pages/Workspace';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -53,7 +53,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="budgets" element={<Budgets />} />
           <Route path="reports" element={<Reports />} />
           <Route path="intelligence" element={<DataIntelligence />} />
-          <Route path="settings" element={<PlaceholderPage title="Settings" />} />
+          <Route path="settings" element={<Workspace />} />
         </Route>
 
         {/* Fallback wildcard redirect */}

@@ -333,11 +333,12 @@ export const DataIntelligence: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={
-                          searchResult?.transactions.length > 0 &&
-                          selectedIds.length === searchResult?.transactions.length
+                          !!searchResult?.transactions &&
+                          searchResult.transactions.length > 0 &&
+                          selectedIds.length === searchResult.transactions.length
                         }
                         onChange={(e) =>
-                          handleSelectAll(e.target.checked, searchResult?.transactions || [])
+                          handleSelectAll(e.target.checked, (searchResult?.transactions || []) as { id: string }[])
                         }
                         className="rounded border-slate-200 dark:border-slate-850 text-indigo-650"
                       />
@@ -385,7 +386,17 @@ export const DataIntelligence: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    searchResult.transactions.map((tx) => (
+                    (searchResult.transactions as {
+                      id: string;
+                      title: string;
+                      description?: string;
+                      amount: number;
+                      type: string;
+                      date: string;
+                      paymentMethod: string;
+                      categoryColor?: string;
+                      categoryName?: string;
+                    }[]).map((tx) => (
                       <tr key={tx.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-800/10 transition-colors">
                         <td className="py-3 px-4">
                           <input

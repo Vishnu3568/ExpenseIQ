@@ -1,10 +1,13 @@
 import { AuthProvider } from './context/AuthContext';
+import { WorkspaceProvider } from './context/WorkspaceContext';
 import { AppRoutes } from './routes/AppRoutes';
 
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <WorkspaceProvider>
+        <AppRoutes />
+      </WorkspaceProvider>
     </AuthProvider>
   );
 }

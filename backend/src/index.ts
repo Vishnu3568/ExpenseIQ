@@ -10,6 +10,7 @@ import insightRoutes from './routes/insightRoutes';
 import budgetRoutes from './routes/budgetRoutes';
 import reportRoutes from './routes/reportRoutes';
 import intelligenceRoutes from './routes/intelligenceRoutes';
+import workspaceRoutes from './routes/workspaceRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/insights', insightRoutes);
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
+app.use('/api/workspace', workspaceRoutes);
 
 // Health status verification endpoint
 app.get('/health', (_req: Request, res: Response) => {

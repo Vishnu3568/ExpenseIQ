@@ -18,29 +18,18 @@ import {
   Compass
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useWorkspace } from '../context/WorkspaceContext';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
+  const { theme, updateTheme } = useWorkspace();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   
-  // Local theme toggle state
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark' || 
-      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [darkMode]);
+  const darkMode = theme === 'dark' || 
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   // Close menus on page navigation
   useEffect(() => {
@@ -153,7 +142,7 @@ export const DashboardLayout: React.FC = () => {
           <div className="flex items-center space-x-4">
             {/* Theme Toggle Button */}
             <button
-              onClick={() => setDarkMode(!darkMode)}
+              onClick={() => updateTheme(darkMode ? 'light' : 'dark')}
               className="p-2 rounded-lg bg-secondary text-secondary-foreground hover:opacity-85 transition-opacity"
               aria-label="Toggle Theme"
             >

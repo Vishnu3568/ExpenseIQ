@@ -291,10 +291,11 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
                 {comparisonResult.tableData.map((row, idx) => {
-                  const label = row.metric || row.categoryName || row.type || row.budgetName || `Item ${idx + 1}`;
-                  const pVal = row.currentPeriod !== undefined ? row.currentPeriod : row.amountSpent !== undefined ? row.amountSpent : row.amount !== undefined ? row.amount : row.actualSpend;
-                  const cVal = row.previousPeriod !== undefined ? row.previousPeriod : row.shareOfTotalPercent !== undefined ? row.shareOfTotalPercent : row.percentage !== undefined ? row.percentage : row.limitAmount;
-                  const delta = row.deltaPercent !== undefined ? row.deltaPercent : row.shareOfTotalPercent !== undefined ? row.shareOfTotalPercent : row.utilizationRatePercent;
+                  const r = row as Record<string, string | number | boolean | undefined>;
+                  const label = r.metric || r.categoryName || r.type || r.budgetName || `Item ${idx + 1}`;
+                  const pVal = r.currentPeriod !== undefined ? r.currentPeriod : r.amountSpent !== undefined ? r.amountSpent : r.amount !== undefined ? r.amount : r.actualSpend;
+                  const cVal = r.previousPeriod !== undefined ? r.previousPeriod : r.shareOfTotalPercent !== undefined ? r.shareOfTotalPercent : r.percentage !== undefined ? r.percentage : r.limitAmount;
+                  const delta = r.deltaPercent !== undefined ? r.deltaPercent : r.shareOfTotalPercent !== undefined ? r.shareOfTotalPercent : r.utilizationRatePercent;
 
                   return (
                     <tr key={idx} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10">
@@ -303,12 +304,12 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({
                         ${Number(pVal || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2 px-3 text-right text-slate-500 dark:text-slate-400">
-                        {row.shareOfTotalPercent !== undefined || row.percentage !== undefined
-                          ? `${Number(cVal).toFixed(1)}%`
+                        {r.shareOfTotalPercent !== undefined || r.percentage !== undefined
+                          ? `${Number(cVal as number).toFixed(1)}%`
                           : `$${Number(cVal || 0).toLocaleString()}`}
                       </td>
-                      <td className={`py-2 px-3 text-right font-semibold ${delta >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {delta >= 0 ? '+' : ''}{Number(delta || 0).toFixed(1)}%
+                      <td className={`py-2 px-3 text-right font-semibold ${(delta as number) >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        {(delta as number) >= 0 ? '+' : ''}{Number(delta || 0).toFixed(1)}%
                       </td>
                     </tr>
                   );

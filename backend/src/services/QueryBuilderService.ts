@@ -169,21 +169,37 @@ export const QueryBuilderService = {
     ]);
 
     return {
-      transactions: transactions.map((t) => ({
-        id: t.id,
-        title: t.title,
-        description: t.description,
-        amount: Number(t.amount),
-        type: t.type,
-        date: t.date.toISOString(),
-        paymentMethod: t.paymentMethod,
-        notes: t.notes,
-        categoryName: t.category?.name || 'Uncategorized',
-        categoryColor: t.category?.color || '#6B7280',
-        tags: t.tags.map((tag) => ({ id: tag.id, name: tag.name, color: tag.color })),
-        createdAt: t.createdAt.toISOString(),
-        updatedAt: t.updatedAt.toISOString(),
-      })),
+      transactions: transactions.map((t) => {
+        const tx = t as unknown as {
+          id: string;
+          title: string;
+          description: string | null;
+          amount: number;
+          type: string;
+          date: Date;
+          paymentMethod: string;
+          notes: string | null;
+          category?: { name: string; color: string } | null;
+          tags?: { id: string; name: string; color: string }[];
+          createdAt: Date;
+          updatedAt: Date;
+        };
+        return {
+          id: tx.id,
+          title: tx.title,
+          description: tx.description,
+          amount: Number(tx.amount),
+          type: tx.type,
+          date: tx.date.toISOString(),
+          paymentMethod: tx.paymentMethod,
+          notes: tx.notes,
+          categoryName: tx.category?.name || 'Uncategorized',
+          categoryColor: tx.category?.color || '#6B7280',
+          tags: (tx.tags || []).map((tag) => ({ id: tag.id, name: tag.name, color: tag.color })),
+          createdAt: tx.createdAt.toISOString(),
+          updatedAt: tx.updatedAt.toISOString(),
+        };
+      }),
       pagination: {
         total,
         page,
