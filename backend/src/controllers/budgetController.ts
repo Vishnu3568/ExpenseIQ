@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { budgetService } from '../services/budgetService';
+import { domainEventService } from '../services/DomainEventService';
 
 export async function getBudgets(req: Request, res: Response, next: NextFunction) {
   try {
@@ -42,6 +43,13 @@ export async function createBudget(req: Request, res: Response, next: NextFuncti
     }
 
     const budget = await budgetService.createBudget(userId, req.body);
+    domainEventService.publish('BUDGET_CREATED', {
+      userId,
+      budgetId: budget.id,
+      name: budget.name,
+      amount: Number(budget.amount),
+      categoryId: budget.categoryId,
+    });
     return res.status(201).json({ success: true, data: budget });
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,6 +70,13 @@ export async function updateBudget(req: Request, res: Response, next: NextFuncti
     }
 
     const budget = await budgetService.updateBudget(id, userId, req.body);
+    domainEventService.publish('BUDGET_UPDATED', {
+      userId,
+      budgetId: budget.id,
+      name: budget.name,
+      amount: Number(budget.amount),
+      categoryId: budget.categoryId,
+    });
     return res.status(200).json({ success: true, data: budget });
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,7 +96,15 @@ export async function deleteBudget(req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
+    const budget = await budgetService.getBudgetById(id, userId);
     await budgetService.deleteBudget(id, userId);
+    if (budget) {
+      domainEventService.publish('BUDGET_DELETED', {
+        userId,
+        budgetId: id,
+        name: budget.name,
+      });
+    }
     return res.status(200).json({ success: true, message: 'Budget deleted successfully' });
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

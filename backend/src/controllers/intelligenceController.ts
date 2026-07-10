@@ -4,6 +4,7 @@ import ComparisonService from '../services/ComparisonService';
 import SavedViewService from '../services/SavedViewService';
 import SearchHistoryService from '../services/SearchHistoryService';
 import prisma from '../db';
+import { domainEventService } from '../services/DomainEventService';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -66,6 +67,11 @@ export const performBulkOperations = async (req: Request, res: Response) => {
         await prisma.transaction.deleteMany({
           where: { id: { in: ids } },
         });
+        domainEventService.publish('TRANSACTIONS_BULK_DELETED', {
+          userId,
+          transactionIds: ids,
+          count: ids.length,
+        });
         return res.status(200).json({
           success: true,
           message: `Successfully deleted ${ids.length} transactions.`,
@@ -88,6 +94,11 @@ export const performBulkOperations = async (req: Request, res: Response) => {
         await prisma.transaction.updateMany({
           where: { id: { in: ids } },
           data: { categoryId },
+        });
+        domainEventService.publish('TRANSACTIONS_BULK_UPDATED', {
+          userId,
+          transactionIds: ids,
+          count: ids.length,
         });
         return res.status(200).json({
           success: true,
@@ -149,6 +160,11 @@ export const saveView = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthenticatedRequest).user.id;
     const view = await SavedViewService.createView(userId, req.body);
+    domainEventService.publish('SAVED_VIEW_CREATED', {
+      userId,
+      savedViewId: view.id,
+      name: view.name,
+    });
     res.status(201).json({ success: true, data: view });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to save view' });
@@ -170,6 +186,11 @@ export const updateSavedView = async (req: Request, res: Response) => {
     const userId = (req as AuthenticatedRequest).user.id;
     const { id } = req.params;
     const updated = await SavedViewService.updateView(id, userId, req.body);
+    domainEventService.publish('SAVED_VIEW_UPDATED', {
+      userId,
+      savedViewId: updated.id,
+      name: updated.name,
+    });
     res.status(200).json({ success: true, data: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to update saved view' });
@@ -180,7 +201,15 @@ export const deleteSavedView = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthenticatedRequest).user.id;
     const { id } = req.params;
+    const view = await prisma.savedView.findFirst({ where: { id, userId } });
     await SavedViewService.deleteView(id, userId);
+    if (view) {
+      domainEventService.publish('SAVED_VIEW_DELETED', {
+        userId,
+        savedViewId: id,
+        name: view.name,
+      });
+    }
     res.status(200).json({ success: true, message: 'Saved view deleted successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to delete saved view' });

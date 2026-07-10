@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import prisma from '../db';
 import WorkspaceService from '../services/WorkspaceService';
+import { domainEventService } from '../services/DomainEventService';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -25,7 +26,31 @@ export const getProfile = async (req: AuthenticatedRequest, res: Response) => {
 export const updateProfile = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
+    const userBefore = await prisma.user.findUnique({ where: { id: userId } });
     const updated = await WorkspaceService.updateProfile(userId, req.body);
+    
+    if (userBefore) {
+      const updatedFields: string[] = [];
+      if (req.body.name && req.body.name !== userBefore.name) updatedFields.push('name');
+      
+      if (req.body.email && req.body.email !== userBefore.email) {
+        domainEventService.publish('EMAIL_CHANGED', {
+          userId,
+          oldEmail: userBefore.email,
+          newEmail: req.body.email,
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent'),
+        });
+      }
+      
+      if (updatedFields.length > 0 || req.body.bio !== undefined || req.body.phoneNumber !== undefined) {
+        domainEventService.publish('PROFILE_UPDATED', {
+          userId,
+          updatedFields: updatedFields.length > 0 ? updatedFields : ['profile_details'],
+        });
+      }
+    }
+
     res.json({ success: true, message: 'Profile updated successfully', data: updated });
   } catch (err) {
     res.status(400).json({ success: false, message: (err as Error).message || 'Failed to update profile' });
@@ -51,6 +76,11 @@ export const updatePassword = async (req: AuthenticatedRequest, res: Response) =
     const newPasswordHash = await bcrypt.hash(newPassword, salt);
 
     await WorkspaceService.updatePassword(userId, newPasswordHash);
+    domainEventService.publish('PASSWORD_CHANGED', {
+      userId,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to update password' });
@@ -71,6 +101,10 @@ export const updatePreferences = async (req: AuthenticatedRequest, res: Response
   try {
     const userId = req.user!.id;
     const updated = await WorkspaceService.updatePreferences(userId, req.body);
+    domainEventService.publish('WORKSPACE_PREFERENCES_UPDATED', {
+      userId,
+      preferences: req.body,
+    });
     res.json({ success: true, message: 'Preferences updated successfully', data: updated });
   } catch (err) {
     res.status(400).json({ success: false, message: (err as Error).message || 'Failed to update preferences' });
@@ -181,7 +215,14 @@ export const deleteAccount = async (req: AuthenticatedRequest, res: Response) =>
 export const purgeTransactions = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
+    const count = await prisma.transaction.count({ where: { userId } });
     await WorkspaceService.purgeTransactions(userId);
+    domainEventService.publish('ALL_TRANSACTIONS_DELETED', {
+      userId,
+      count,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
     res.json({ success: true, message: 'All transactions successfully deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to purge transactions' });
@@ -192,6 +233,11 @@ export const resetDemoData = async (req: AuthenticatedRequest, res: Response) =>
   try {
     const userId = req.user!.id;
     await WorkspaceService.resetDemoData(userId);
+    domainEventService.publish('DEMO_DATA_RESET', {
+      userId,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
     res.json({ success: true, message: 'Demo data successfully reset' });
   } catch (err) {
     res.status(500).json({ success: false, message: (err as Error).message || 'Failed to reset demo data' });
@@ -202,6 +248,11 @@ export const exportPersonalData = async (req: AuthenticatedRequest, res: Respons
   try {
     const userId = req.user!.id;
     const data = await WorkspaceService.exportPersonalData(userId);
+    domainEventService.publish('PERSONAL_DATA_EXPORTED', {
+      userId,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
     res.setHeader('Content-disposition', `attachment; filename=expenseiq_backup_${userId}.json`);
     res.setHeader('Content-type', 'application/json');
     res.send(JSON.stringify(data, null, 2));

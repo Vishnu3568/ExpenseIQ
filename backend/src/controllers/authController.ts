@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../db';
 import { hashPassword, comparePassword } from '../utils/hash';
+import { domainEventService } from '../services/DomainEventService';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -86,6 +87,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     });
 
     if (!user) {
+      domainEventService.publish('AUTH_LOGIN_FAILED', {
+        email,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        reason: 'User not found',
+      });
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
@@ -94,6 +101,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     const isMatch = await comparePassword(password, user.passwordHash);
     if (!isMatch) {
+      domainEventService.publish('AUTH_LOGIN_FAILED', {
+        email,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+        reason: 'Incorrect password',
+      });
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
@@ -113,6 +126,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     });
 
     res.cookie('refreshToken', rawRefreshToken, COOKIE_OPTIONS);
+
+    domainEventService.publish('AUTH_LOGIN_SUCCEEDED', {
+      userId: user.id,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
 
     return res.status(200).json({
       success: true,
@@ -207,9 +226,17 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
     const rawToken = req.cookies?.refreshToken;
+    let userId: string | null = null;
     if (rawToken) {
       const tokenHash = hashRefreshToken(rawToken);
       
+      const storedToken = await prisma.refreshToken.findUnique({
+        where: { tokenHash },
+      });
+      if (storedToken) {
+        userId = storedToken.userId;
+      }
+
       // Revoke token in database
       await prisma.refreshToken.updateMany({
         where: { tokenHash },
@@ -221,6 +248,14 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
       ...COOKIE_OPTIONS,
       maxAge: 0,
     });
+
+    if (userId) {
+      domainEventService.publish('AUTH_LOGOUT', {
+        userId,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent'),
+      });
+    }
 
     return res.status(200).json({
       success: true,

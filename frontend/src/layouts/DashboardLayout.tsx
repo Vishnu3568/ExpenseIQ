@@ -15,10 +15,13 @@ import {
   Moon,
   User as UserIcon,
   ChevronDown,
-  Compass
+  Compass,
+  Bell,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { NotificationBell } from '../components/ui/NotificationBell';
 
 export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -49,6 +52,8 @@ export const DashboardLayout: React.FC = () => {
     { name: 'Budgets', path: '/budgets', icon: <Landmark className="h-5 w-5" /> },
     { name: 'Reports', path: '/reports', icon: <BarChart3 className="h-5 w-5" /> },
     { name: 'Data Intelligence', path: '/intelligence', icon: <Compass className="h-5 w-5" /> },
+    { name: 'Notifications', path: '/notifications', icon: <Bell className="h-5 w-5" /> },
+    { name: 'Activity Timeline', path: '/activity', icon: <History className="h-5 w-5" /> },
     { name: 'Settings', path: '/settings', icon: <Settings className="h-5 w-5" /> },
   ];
 
@@ -140,6 +145,9 @@ export const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Notification Bell Dropdown */}
+            <NotificationBell />
+
             {/* Theme Toggle Button */}
             <button
               onClick={() => updateTheme(darkMode ? 'light' : 'dark')}

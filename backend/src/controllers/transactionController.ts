@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../db';
+import { domainEventService } from '../services/DomainEventService';
 
 /**
  * Retrieve paginated, sorted, and filtered transactions alongside aggregate metrics.
@@ -257,6 +258,16 @@ export async function createTransaction(req: Request, res: Response, next: NextF
       },
     });
 
+    domainEventService.publish('TRANSACTION_CREATED', {
+      userId,
+      transactionId: transaction.id,
+      amount: Number(transaction.amount),
+      currency: req.user!.currency || 'USD',
+      categoryId: transaction.categoryId,
+      date: transaction.date,
+      title: transaction.title,
+    });
+
     return res.status(201).json({
       success: true,
       transaction,
@@ -351,6 +362,17 @@ export async function updateTransaction(req: Request, res: Response, next: NextF
       },
     });
 
+    domainEventService.publish('TRANSACTION_UPDATED', {
+      userId,
+      transactionId: updated.id,
+      amount: Number(updated.amount),
+      oldAmount: Number(transaction.amount),
+      currency: req.user!.currency || 'USD',
+      categoryId: updated.categoryId,
+      date: updated.date,
+      title: updated.title,
+    });
+
     return res.status(200).json({
       success: true,
       transaction: updated,
@@ -388,6 +410,16 @@ export async function deleteTransaction(req: Request, res: Response, next: NextF
 
     await prisma.transaction.delete({
       where: { id },
+    });
+
+    domainEventService.publish('TRANSACTION_DELETED', {
+      userId,
+      transactionId: transaction.id,
+      amount: Number(transaction.amount),
+      currency: req.user!.currency || 'USD',
+      categoryId: transaction.categoryId,
+      date: transaction.date,
+      title: transaction.title,
     });
 
     return res.status(200).json({

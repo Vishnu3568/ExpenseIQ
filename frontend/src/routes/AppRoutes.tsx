@@ -9,6 +9,8 @@ import { Budgets } from '../pages/Budgets';
 import { Reports } from '../pages/Reports';
 import { DataIntelligence } from '../pages/DataIntelligence';
 import { Workspace } from '../pages/Workspace';
+import { NotificationCenter } from '../pages/NotificationCenter';
+import { ActivityTimeline } from '../pages/ActivityTimeline';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -53,6 +55,8 @@ export const AppRoutes: React.FC = () => {
           <Route path="budgets" element={<Budgets />} />
           <Route path="reports" element={<Reports />} />
           <Route path="intelligence" element={<DataIntelligence />} />
+          <Route path="notifications" element={<NotificationCenter />} />
+          <Route path="activity" element={<ActivityTimeline />} />
           <Route path="settings" element={<Workspace />} />
         </Route>
 

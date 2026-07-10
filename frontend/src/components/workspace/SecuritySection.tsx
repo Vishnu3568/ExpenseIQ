@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useWorkspace } from '../../context/WorkspaceContext';
-import { Shield, Key, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Shield, Key, Eye, EyeOff, Check, X, ShieldAlert } from 'lucide-react';
 import { Button } from '../ui/Button';
 import workspaceService from '../../services/workspaceService';
 import { SecurityInfoResponse } from '../../types/workspace';
+import notificationService from '../../services/notificationService';
+import { AuditLogItem } from '../../types/notification';
 
 interface AxiosErrorLike {
   response?: {
@@ -16,6 +18,10 @@ interface AxiosErrorLike {
 export const SecuritySection: React.FC = () => {
   const { profile } = useWorkspace();
   const [securityData, setSecurityData] = useState<SecurityInfoResponse | null>(null);
+  const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
+  const [outcomeFilter, setOutcomeFilter] = useState<string>('');
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditPages, setAuditPages] = useState(1);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -51,6 +57,25 @@ export const SecuritySection: React.FC = () => {
     };
     loadSecurity();
   }, []);
+
+  useEffect(() => {
+    const loadAudits = async () => {
+      try {
+        const res = await notificationService.getAuditLogs({
+          outcome: (outcomeFilter || undefined) as 'SUCCESS' | 'FAILURE' | undefined,
+          page: auditPage,
+          limit: 5,
+        });
+        if (res.success) {
+          setAuditLogs(res.data.items);
+          setAuditPages(res.data.pagination.totalPages || 1);
+        }
+      } catch (err) {
+        console.error('Failed to load security audit logs:', err);
+      }
+    };
+    loadAudits();
+  }, [outcomeFilter, auditPage]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,6 +252,112 @@ export const SecuritySection: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Audit Log Table Section */}
+      <div className="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h4 className="text-xs font-bold text-slate-450 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldAlert className="h-3.5 w-3.5 text-indigo-500" /> Security Audit Log Feed
+            </h4>
+            <p className="text-[10px] text-slate-400">Append-only log of your authentication events, password updates, and account configurations.</p>
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-2">
+            <select
+              value={outcomeFilter}
+              onChange={(e) => {
+                setOutcomeFilter(e.target.value);
+                setAuditPage(1);
+              }}
+              className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2 py-1 text-[10px] text-slate-700 dark:text-slate-355 focus:outline-none"
+            >
+              <option value="">All Outcomes</option>
+              <option value="SUCCESS">Success</option>
+              <option value="FAILURE">Failure</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Audit log Table */}
+        <div className="overflow-x-auto border border-slate-100 dark:border-slate-800 rounded-xl">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50/50 dark:bg-slate-900/50 text-[10px] font-bold text-slate-405 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+              <tr>
+                <th className="p-3">Action</th>
+                <th className="p-3">Module</th>
+                <th className="p-3">Outcome</th>
+                <th className="p-3">IP / Device</th>
+                <th className="p-3">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/40">
+              {auditLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center text-slate-400">
+                    No security events logged matching filter requirements.
+                  </td>
+                </tr>
+              ) : (
+                auditLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-50/10 transition-colors">
+                    <td className="p-3 font-semibold text-slate-700 dark:text-slate-350">
+                      {log.action.replace('AUTH_', '').replace('_', ' ')}
+                    </td>
+                    <td className="p-3 text-[10px] font-medium text-slate-400 uppercase">
+                      {log.module}
+                    </td>
+                    <td className="p-3">
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                        log.outcome === 'SUCCESS'
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400'
+                          : 'bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400'
+                      }`}>
+                        {log.outcome}
+                      </span>
+                    </td>
+                    <td className="p-3 text-[10px] text-slate-500 dark:text-slate-400">
+                      <div>IP: {log.ipAddress || 'unknown'}</div>
+                      <div className="truncate max-w-[150px] text-[9px] text-slate-400">{log.userAgent || 'unknown'}</div>
+                    </td>
+                    <td className="p-3 text-[10px] text-slate-400">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table Pagination */}
+        {auditPages > 1 && (
+          <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2">
+            <span>Page {auditPage} of {auditPages}</span>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="sm"
+                className="py-1 px-2.5 h-7 text-[10px]"
+                disabled={auditPage === 1}
+                onClick={() => setAuditPage(auditPage - 1)}
+              >
+                Prev
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="py-1 px-2.5 h-7 text-[10px]"
+                disabled={auditPage === auditPages}
+                onClick={() => setAuditPage(auditPage + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

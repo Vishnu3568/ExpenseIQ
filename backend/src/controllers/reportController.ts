@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ReportBuilder } from '../services/ReportBuilder';
 import { ReportHistoryService } from '../services/ReportHistoryService';
 import { ExportService } from '../services/ExportService';
+import { domainEventService } from '../services/DomainEventService';
 
 export async function generatePreview(req: Request, res: Response, next: NextFunction) {
   try {
@@ -40,6 +41,13 @@ export async function saveReport(req: Request, res: Response, next: NextFunction
       filters || {},
       template || 'professional'
     );
+
+    domainEventService.publish('REPORT_GENERATED', {
+      userId,
+      reportId: report.id,
+      name: report.name,
+      type: report.type,
+    });
 
     return res.status(201).json({ success: true, data: report });
   } catch (err) {
@@ -130,6 +138,13 @@ export async function exportReportFile(req: Request, res: Response, next: NextFu
 
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    domainEventService.publish('REPORT_EXPORTED', {
+      userId,
+      name: reportMeta.name,
+      format,
+    });
+
     return res.send(content);
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,7 +163,15 @@ export async function deleteReport(req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
+    const report = await ReportHistoryService.getReportById(id, userId).catch(() => null);
     await ReportHistoryService.deleteReport(id, userId);
+    if (report) {
+      domainEventService.publish('REPORT_DELETED', {
+        userId,
+        reportId: id,
+        name: report.name,
+      });
+    }
     return res.status(200).json({ success: true, message: 'Report removed from history successfully' });
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

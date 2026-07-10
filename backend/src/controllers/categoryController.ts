@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../db';
+import { domainEventService } from '../services/DomainEventService';
 
 /**
  * Get all categories (system categories + authenticated user's custom categories)
@@ -138,6 +139,13 @@ export async function createCategory(req: Request, res: Response, next: NextFunc
       },
     });
 
+    domainEventService.publish('CATEGORY_CREATED', {
+      userId: category.userId,
+      categoryId: category.id,
+      name: category.name,
+      type: category.type,
+    });
+
     return res.status(201).json({
       success: true,
       category,
@@ -215,6 +223,12 @@ export async function updateCategory(req: Request, res: Response, next: NextFunc
         icon: icon || category.icon,
         sortOrder: sortOrder !== undefined ? sortOrder : category.sortOrder,
       },
+    });
+
+    domainEventService.publish('CATEGORY_UPDATED', {
+      userId: updatedCategory.userId,
+      categoryId: updatedCategory.id,
+      name: updatedCategory.name,
     });
 
     return res.status(200).json({
@@ -312,6 +326,12 @@ export async function archiveCategory(req: Request, res: Response, next: NextFun
       data: { isActive: false },
     });
 
+    domainEventService.publish('CATEGORY_ARCHIVED', {
+      userId: updated.userId,
+      categoryId: updated.id,
+      name: updated.name,
+    });
+
     return res.status(200).json({
       success: true,
       category: updated,
@@ -357,6 +377,12 @@ export async function restoreCategory(req: Request, res: Response, next: NextFun
     const updated = await prisma.category.update({
       where: { id },
       data: { isActive: true },
+    });
+
+    domainEventService.publish('CATEGORY_RESTORED', {
+      userId: updated.userId,
+      categoryId: updated.id,
+      name: updated.name,
     });
 
     return res.status(200).json({

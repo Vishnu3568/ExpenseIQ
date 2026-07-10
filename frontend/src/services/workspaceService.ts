@@ -10,7 +10,7 @@ import {
 
 export const workspaceService = {
   async getProfile(): Promise<{ success: boolean; data: UserProfileResponse }> {
-    const res = await apiClient.get('/workspace/profile');
+    const res = await apiClient.get('/api/workspace/profile');
     return res.data;
   },
 
@@ -21,13 +21,13 @@ export const workspaceService = {
     bio?: string;
     avatarUrl?: string;
   }): Promise<{ success: boolean; data: UserProfileResponse }> {
-    const res = await apiClient.put('/workspace/profile', data);
+    const res = await apiClient.put('/api/workspace/profile', data);
     return res.data;
   },
 
   async updatePassword(data: { oldPassword: string; newPasswordHash: string }): Promise<{ success: boolean }> {
     // Note: Parameter backend payload is { oldPassword, newPassword }
-    const res = await apiClient.put('/workspace/password', {
+    const res = await apiClient.put('/api/workspace/password', {
       oldPassword: data.oldPassword,
       newPassword: data.newPasswordHash,
     });
@@ -35,77 +35,77 @@ export const workspaceService = {
   },
 
   async getPreferences(): Promise<{ success: boolean; data: WorkspacePreferencesResponse }> {
-    const res = await apiClient.get('/workspace/preferences');
+    const res = await apiClient.get('/api/workspace/preferences');
     return res.data;
   },
 
   async updatePreferences(data: WorkspacePreferencesResponse): Promise<{ success: boolean; data: unknown }> {
-    const res = await apiClient.put('/workspace/preferences', data);
+    const res = await apiClient.put('/api/workspace/preferences', data);
     return res.data;
   },
 
   async getTheme(): Promise<{ success: boolean; data: { theme: string } }> {
-    const res = await apiClient.get('/workspace/theme');
+    const res = await apiClient.get('/api/workspace/theme');
     return res.data;
   },
 
   async updateTheme(theme: string): Promise<{ success: boolean; data: { theme: string } }> {
-    const res = await apiClient.put('/workspace/theme', { theme });
+    const res = await apiClient.put('/api/workspace/theme', { theme });
     return res.data;
   },
 
   async getDashboard(): Promise<{ success: boolean; data: DashboardPreferences }> {
-    const res = await apiClient.get('/workspace/dashboard');
+    const res = await apiClient.get('/api/workspace/dashboard');
     return res.data;
   },
 
   async updateDashboard(data: DashboardPreferences): Promise<{ success: boolean; data: unknown }> {
-    const res = await apiClient.put('/workspace/dashboard', data);
+    const res = await apiClient.put('/api/workspace/dashboard', data);
     return res.data;
   },
 
   async getExport(): Promise<{ success: boolean; data: ExportPreferences }> {
-    const res = await apiClient.get('/workspace/export');
+    const res = await apiClient.get('/api/workspace/export');
     return res.data;
   },
 
   async updateExport(data: ExportPreferences): Promise<{ success: boolean; data: unknown }> {
-    const res = await apiClient.put('/workspace/export', data);
+    const res = await apiClient.put('/api/workspace/export', data);
     return res.data;
   },
 
   async getNotifications(): Promise<{ success: boolean; data: NotificationPreferences }> {
-    const res = await apiClient.get('/workspace/notifications');
+    const res = await apiClient.get('/api/workspace/notifications');
     return res.data;
   },
 
   async updateNotifications(data: NotificationPreferences): Promise<{ success: boolean; data: unknown }> {
-    const res = await apiClient.put('/workspace/notifications', data);
+    const res = await apiClient.put('/api/workspace/notifications', data);
     return res.data;
   },
 
   async getSecurity(): Promise<{ success: boolean; data: SecurityInfoResponse }> {
-    const res = await apiClient.get('/workspace/security');
+    const res = await apiClient.get('/api/workspace/security');
     return res.data;
   },
 
   async deleteAccount(): Promise<{ success: boolean }> {
-    const res = await apiClient.delete('/workspace/account');
+    const res = await apiClient.delete('/api/workspace/account');
     return res.data;
   },
 
   async purgeTransactions(): Promise<{ success: boolean }> {
-    const res = await apiClient.delete('/workspace/data/transactions');
+    const res = await apiClient.delete('/api/workspace/data/transactions');
     return res.data;
   },
 
   async resetDemoData(): Promise<{ success: boolean }> {
-    const res = await apiClient.post('/workspace/data/reset-demo');
+    const res = await apiClient.post('/api/workspace/data/reset-demo');
     return res.data;
   },
 
   async exportPersonalData(): Promise<Blob> {
-    const res = await apiClient.get('/workspace/data/export', {
+    const res = await apiClient.get('/api/workspace/data/export', {
       responseType: 'blob',
     });
     return res.data;

@@ -11,9 +11,21 @@ import budgetRoutes from './routes/budgetRoutes';
 import reportRoutes from './routes/reportRoutes';
 import intelligenceRoutes from './routes/intelligenceRoutes';
 import workspaceRoutes from './routes/workspaceRoutes';
+import notificationRoutes from './routes/notificationRoutes';
+import activityRoutes from './routes/activityRoutes';
+import auditRoutes from './routes/auditRoutes';
+
+import activityService from './services/ActivityService';
+import auditService from './services/AuditService';
+import notificationRuleService from './services/NotificationRuleService';
 
 // Load environment variables
 dotenv.config();
+
+// Initialize event-driven core listeners
+activityService.init();
+auditService.init();
+notificationRuleService.init();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +48,9 @@ app.use('/api/budgets', budgetRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
 app.use('/api/workspace', workspaceRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/audit-logs', auditRoutes);
 
 // Health status verification endpoint
 app.get('/health', (_req: Request, res: Response) => {
