@@ -9,6 +9,7 @@ import {
   exportReportFile,
   deleteReport,
 } from '../controllers/reportController';
+import { exportLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.post('/preview', validateReportRequest, generatePreview);
 router.post('/', validateReportRequest, saveReport);
 router.get('/', getReportsHistory);
 router.get('/:id', getReportDetails);
-router.get('/:id/export/:format', exportReportFile);
+router.get('/:id/export/:format', exportLimiter, exportReportFile);
 router.delete('/:id', deleteReport);
 
 export default router;

@@ -30,6 +30,7 @@ import {
   updateExportValidator,
   updateNotificationsValidator,
 } from '../validators/workspaceValidator';
+import { passwordLimiter, exportLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -41,7 +42,7 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfileValidator, validateRequest, updateProfile);
 
 // Password
-router.put('/password', updatePasswordValidator, validateRequest, updatePassword);
+router.put('/password', passwordLimiter, updatePasswordValidator, validateRequest, updatePassword);
 
 // Preferences
 router.get('/preferences', getPreferences);
@@ -70,6 +71,6 @@ router.get('/security', getSecurity);
 router.delete('/account', deleteAccount);
 router.delete('/data/transactions', purgeTransactions);
 router.post('/data/reset-demo', resetDemoData);
-router.get('/data/export', exportPersonalData);
+router.get('/data/export', exportLimiter, exportPersonalData);
 
 export default router;

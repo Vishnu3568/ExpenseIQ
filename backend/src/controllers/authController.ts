@@ -199,7 +199,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     // Delete or revoke old token, write new token
     await prisma.$transaction([
-      prisma.refreshToken.delete({ where: { id: storedToken.id } }),
+      prisma.refreshToken.deleteMany({ where: { id: storedToken.id } }),
       prisma.refreshToken.create({
         data: {
           tokenHash: newHash,
