@@ -12,7 +12,7 @@ model User {
   email           String          @unique
   passwordHash    String
   name            String
-  currency        String          @default("USD")
+  currency        String          @default("INR")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   transactions    Transaction[]

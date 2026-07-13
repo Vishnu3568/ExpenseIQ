@@ -63,10 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, currency?: string) => {
     setIsLoading(true);
     try {
-      const res = await authService.register({ name, email, password });
+      const res = await authService.register({ name, email, password, currency });
       setAccessToken(res.accessToken);
       setClientToken(res.accessToken);
       setUser(res.user);

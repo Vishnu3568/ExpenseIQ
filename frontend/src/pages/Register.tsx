@@ -25,6 +25,7 @@ export const Register: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      currency: 'INR',
     },
   });
 
@@ -34,7 +35,7 @@ export const Register: React.FC = () => {
     setApiError('');
     setIsSubmitting(true);
     try {
-      await registerAuth(data.name, data.email, data.password);
+      await registerAuth(data.name, data.email, data.password, data.currency);
       navigate('/dashboard');
     } catch (err) {
       const errMsg =
@@ -92,6 +93,22 @@ export const Register: React.FC = () => {
                 },
               })}
             />
+
+            <div className="w-full text-left">
+              <label className="block text-sm font-medium text-foreground mb-1.5">
+                Preferred Currency
+              </label>
+              <select
+                className="w-full h-10 px-3 rounded-lg border bg-background text-foreground text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-ring focus:border-transparent border-input"
+                {...register('currency', { required: 'Preferred currency is required' })}
+              >
+                <option value="INR">INR (₹) - Indian Rupee</option>
+                <option value="USD">USD ($) - US Dollar</option>
+                <option value="EUR">EUR (€) - Euro</option>
+                <option value="GBP">GBP (£) - British Pound</option>
+                <option value="JPY">JPY (¥) - Japanese Yen</option>
+              </select>
+            </div>
 
             <Input
               label="Password"

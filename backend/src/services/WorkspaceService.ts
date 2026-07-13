@@ -37,26 +37,34 @@ export class WorkspaceService {
   /**
    * Lazily loads or creates default settings for a given user.
    */
+  static async createWorkspace(userId: string, currency?: string) {
+    const selectedCurrency = currency || 'INR';
+    return await prisma.workspace.create({
+      data: {
+        userId,
+        currency: selectedCurrency,
+        timezone: selectedCurrency === 'INR' ? 'Asia/Kolkata' : 'UTC',
+        locale: selectedCurrency === 'INR' ? 'en-IN' : 'en-US',
+        numberFormat: 'COMMA',
+        dateFormat: 'YYYY-MM-DD',
+        theme: 'system',
+        dashboardPreferences: DEFAULT_DASHBOARD as unknown as Prisma.InputJsonValue,
+        exportPreferences: DEFAULT_EXPORT as unknown as Prisma.InputJsonValue,
+        notificationPreferences: DEFAULT_NOTIFICATIONS as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
+
+  /**
+   * Lazily loads or creates default settings for a given user.
+   */
   static async getOrCreateWorkspace(userId: string) {
     let ws = await prisma.workspace.findUnique({
       where: { userId },
     });
 
     if (!ws) {
-      ws = await prisma.workspace.create({
-        data: {
-          userId,
-          currency: 'USD',
-          timezone: 'UTC',
-          locale: 'en-US',
-          numberFormat: 'COMMA',
-          dateFormat: 'YYYY-MM-DD',
-          theme: 'system',
-          dashboardPreferences: DEFAULT_DASHBOARD as unknown as Prisma.InputJsonValue,
-          exportPreferences: DEFAULT_EXPORT as unknown as Prisma.InputJsonValue,
-          notificationPreferences: DEFAULT_NOTIFICATIONS as unknown as Prisma.InputJsonValue,
-        },
-      });
+      ws = await this.createWorkspace(userId, 'INR');
     }
     return ws;
   }

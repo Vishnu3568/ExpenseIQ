@@ -7,6 +7,7 @@ import {
   generateRefreshToken,
   hashRefreshToken,
 } from '../utils/token';
+import { WorkspaceService } from '../services/WorkspaceService';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -21,7 +22,7 @@ const COOKIE_OPTIONS = {
  */
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, currency } = req.body;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -35,11 +36,14 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     }
 
     const hashedPassword = await hashPassword(password);
+    const selectedCurrency = currency || 'INR';
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         passwordHash: hashedPassword,
+        currency: selectedCurrency,
       },
       select: {
         id: true,
@@ -48,6 +52,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         currency: true,
       },
     });
+
+    // Create default workspace settings immediately with the selected currency
+    await WorkspaceService.createWorkspace(user.id, selectedCurrency);
 
     const accessToken = generateAccessToken({ userId: user.id, email: user.email });
     const rawRefreshToken = generateRefreshToken();

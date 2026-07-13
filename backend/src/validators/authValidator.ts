@@ -11,6 +11,10 @@ export const registerValidator = [
     .isLength({ min: 2, max: 50 })
     .withMessage('Name must be between 2 and 50 characters long')
     .customSanitizer(sanitizeText),
+  body('currency')
+    .optional()
+    .isIn(['USD', 'EUR', 'GBP', 'INR', 'JPY'])
+    .withMessage('Invalid currency. Supported: USD, EUR, GBP, INR, JPY'),
 ];
 
 export const loginValidator = [
