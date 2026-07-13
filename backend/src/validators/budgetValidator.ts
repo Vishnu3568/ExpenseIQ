@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { sanitizeText } from './sharedValidator';
 
 export const budgetValidator = [
   body('name')
@@ -6,7 +7,8 @@ export const budgetValidator = [
     .notEmpty()
     .withMessage('Budget name is required')
     .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters'),
+    .withMessage('Name must be between 2 and 50 characters')
+    .customSanitizer(sanitizeText),
   body('amount')
     .notEmpty()
     .withMessage('Budget amount is required')
@@ -50,5 +52,6 @@ export const budgetValidator = [
     .optional({ nullable: true })
     .trim()
     .isLength({ max: 200 })
-    .withMessage('Notes cannot exceed 200 characters'),
+    .withMessage('Notes cannot exceed 200 characters')
+    .customSanitizer(sanitizeText),
 ];

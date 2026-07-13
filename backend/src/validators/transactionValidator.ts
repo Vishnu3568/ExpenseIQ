@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { sanitizeText } from './sharedValidator';
 
 export const transactionValidator = [
   body('title')
@@ -6,7 +7,8 @@ export const transactionValidator = [
     .notEmpty()
     .withMessage('Transaction title is required')
     .isLength({ min: 2, max: 50 })
-    .withMessage('Title must be between 2 and 50 characters'),
+    .withMessage('Title must be between 2 and 50 characters')
+    .customSanitizer(sanitizeText),
   body('amount')
     .notEmpty()
     .withMessage('Amount is required')
@@ -34,15 +36,18 @@ export const transactionValidator = [
     .notEmpty()
     .withMessage('Payment method is required')
     .isIn(['Cash', 'Credit Card', 'Debit Card', 'Bank Transfer', 'UPI', 'Wallet', 'Other'])
-    .withMessage('Invalid payment method selection'),
+    .withMessage('Invalid payment method selection')
+    .customSanitizer(sanitizeText),
   body('description')
     .optional({ nullable: true })
     .trim()
     .isLength({ max: 200 })
-    .withMessage('Description cannot exceed 200 characters'),
+    .withMessage('Description cannot exceed 200 characters')
+    .customSanitizer(sanitizeText),
   body('notes')
     .optional({ nullable: true })
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Notes cannot exceed 500 characters'),
+    .withMessage('Notes cannot exceed 500 characters')
+    .customSanitizer(sanitizeText),
 ];

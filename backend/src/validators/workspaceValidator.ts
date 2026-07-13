@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { emailValidator, passwordValidator, sanitizeText } from './sharedValidator';
 
 export const updateProfileValidator = [
   body('name')
@@ -6,44 +7,35 @@ export const updateProfileValidator = [
     .withMessage('Name is required')
     .trim()
     .isLength({ max: 100 })
-    .withMessage('Name cannot exceed 100 characters'),
-  body('email')
-    .isEmail()
-    .withMessage('Please provide a valid email address')
-    .normalizeEmail(),
+    .withMessage('Name cannot exceed 100 characters')
+    .customSanitizer(sanitizeText),
+  emailValidator('email'),
   body('phoneNumber')
     .optional({ nullable: true, checkFalsy: true })
     .isString()
     .withMessage('Phone number must be a string')
     .isLength({ max: 20 })
-    .withMessage('Phone number is too long'),
+    .withMessage('Phone number is too long')
+    .customSanitizer(sanitizeText),
   body('bio')
     .optional({ nullable: true, checkFalsy: true })
     .isString()
     .withMessage('Bio must be a string')
     .isLength({ max: 500 })
-    .withMessage('Bio cannot exceed 500 characters'),
+    .withMessage('Bio cannot exceed 500 characters')
+    .customSanitizer(sanitizeText),
   body('avatarUrl')
     .optional({ nullable: true, checkFalsy: true })
     .isString()
-    .withMessage('Avatar URL must be a string'),
+    .withMessage('Avatar URL must be a string')
+    .customSanitizer(sanitizeText),
 ];
 
 export const updatePasswordValidator = [
   body('oldPassword')
     .notEmpty()
     .withMessage('Current password is required'),
-  body('newPassword')
-    .isLength({ min: 8 })
-    .withMessage('New password must be at least 8 characters long')
-    .matches(/[A-Z]/)
-    .withMessage('New password must contain at least one uppercase letter')
-    .matches(/[a-z]/)
-    .withMessage('New password must contain at least one lowercase letter')
-    .matches(/[0-9]/)
-    .withMessage('New password must contain at least one number')
-    .matches(/[#?!@$%^&*-]/)
-    .withMessage('New password must contain at least one special character (#?!@$%^&*-)'),
+  passwordValidator('newPassword'),
 ];
 
 export const updatePreferencesValidator = [
@@ -54,12 +46,14 @@ export const updatePreferencesValidator = [
     .notEmpty()
     .withMessage('Timezone is required')
     .isString()
-    .withMessage('Timezone must be a string'),
+    .withMessage('Timezone must be a string')
+    .customSanitizer(sanitizeText),
   body('locale')
     .notEmpty()
     .withMessage('Locale is required')
     .isString()
-    .withMessage('Locale must be a string'),
+    .withMessage('Locale must be a string')
+    .customSanitizer(sanitizeText),
   body('numberFormat')
     .isIn(['COMMA', 'DOT', 'SPACE'])
     .withMessage('Number format must be COMMA, DOT, or SPACE'),
@@ -77,7 +71,8 @@ export const updateThemeValidator = [
 export const updateDashboardValidator = [
   body('defaultLandingPage')
     .isString()
-    .withMessage('Default landing page must be a string'),
+    .withMessage('Default landing page must be a string')
+    .customSanitizer(sanitizeText),
   body('favoriteWidgets')
     .isArray()
     .withMessage('Favorite widgets must be an array'),
@@ -98,7 +93,8 @@ export const updateDashboardValidator = [
 export const updateExportValidator = [
   body('preferredPdfTemplate')
     .isString()
-    .withMessage('Preferred PDF template must be a string'),
+    .withMessage('Preferred PDF template must be a string')
+    .customSanitizer(sanitizeText),
   body('preferredCsvDelimiter')
     .isIn([',', ';', '\t'])
     .withMessage('Preferred CSV delimiter must be a comma, semicolon, or tab'),
@@ -107,7 +103,8 @@ export const updateExportValidator = [
     .withMessage('Excel formatting must be a boolean'),
   body('defaultReportTemplate')
     .isString()
-    .withMessage('Default report template must be a string'),
+    .withMessage('Default report template must be a string')
+    .customSanitizer(sanitizeText),
 ];
 
 export const updateNotificationsValidator = [

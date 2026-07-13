@@ -1,5 +1,6 @@
 import { body } from 'express-validator';
 import { validateRequest } from '../middleware/validationMiddleware';
+import { sanitizeText } from './sharedValidator';
 
 export const validateReportRequest = [
   body('name')
@@ -7,7 +8,8 @@ export const validateReportRequest = [
     .isString()
     .withMessage('Name must be a string')
     .isLength({ min: 2, max: 100 })
-    .withMessage('Name must be between 2 and 100 characters'),
+    .withMessage('Name must be between 2 and 100 characters')
+    .customSanitizer(sanitizeText),
   body('type')
     .isString()
     .withMessage('Type must be a string')

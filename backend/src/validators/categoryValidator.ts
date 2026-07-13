@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { sanitizeText } from './sharedValidator';
 
 export const categoryValidator = [
   body('name')
@@ -6,12 +7,14 @@ export const categoryValidator = [
     .notEmpty()
     .withMessage('Category name is required')
     .isLength({ min: 2, max: 30 })
-    .withMessage('Category name must be between 2 and 30 characters'),
+    .withMessage('Category name must be between 2 and 30 characters')
+    .customSanitizer(sanitizeText),
   body('description')
     .optional({ nullable: true })
     .trim()
     .isLength({ max: 200 })
-    .withMessage('Description cannot exceed 200 characters'),
+    .withMessage('Description cannot exceed 200 characters')
+    .customSanitizer(sanitizeText),
   body('type')
     .trim()
     .notEmpty()
@@ -29,7 +32,8 @@ export const categoryValidator = [
     .notEmpty()
     .withMessage('Icon is required')
     .isLength({ min: 2, max: 30 })
-    .withMessage('Icon name must be between 2 and 30 characters'),
+    .withMessage('Icon name must be between 2 and 30 characters')
+    .customSanitizer(sanitizeText),
   body('sortOrder')
     .optional()
     .isInt({ min: 0 })
