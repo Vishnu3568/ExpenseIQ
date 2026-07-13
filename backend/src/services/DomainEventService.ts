@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import LoggerService from './LoggerService';
 
 export type DomainEventType =
   | 'AUTH_LOGIN_SUCCEEDED'
@@ -95,7 +96,7 @@ export class DomainEventService extends EventEmitter {
     try {
       this.emit(event, payload);
     } catch (err) {
-      console.error(`[DomainEventService]: Error emitting event ${event}:`, err);
+      LoggerService.error(`[DomainEventService]: Error emitting event ${event}`, err);
     }
   }
 
@@ -104,7 +105,7 @@ export class DomainEventService extends EventEmitter {
       try {
         await listener(payload);
       } catch (err) {
-        console.error(`[DomainEventService]: Error handling event ${event}:`, err);
+        LoggerService.error(`[DomainEventService]: Error handling event ${event}`, err);
       }
     };
     return super.on(event, safeListener);

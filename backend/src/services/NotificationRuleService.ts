@@ -2,6 +2,7 @@ import prisma from '../db';
 import { domainEventService } from './DomainEventService';
 import { notificationService } from './NotificationService';
 import { budgetService } from './budgetService';
+import LoggerService from './LoggerService';
 
 export const notificationRuleService = {
   init() {
@@ -157,7 +158,7 @@ export const notificationRuleService = {
         }
       }
     } catch (err) {
-      console.error('[NotificationRuleService]: Error in budget rule check:', err);
+      LoggerService.error('[NotificationRuleService]: Error in budget rule check', err);
     }
   },
 
@@ -188,7 +189,7 @@ export const notificationRuleService = {
         });
       }
     } catch (err) {
-      console.error('[NotificationRuleService]: Error in large transaction rule check:', err);
+      LoggerService.error('[NotificationRuleService]: Error in large transaction rule check', err);
     }
   },
 
@@ -213,7 +214,7 @@ export const notificationRuleService = {
         metadata: { eventType: type },
       });
     } catch (err) {
-      console.error('[NotificationRuleService]: Error logging security alert notification:', err);
+      LoggerService.error('[NotificationRuleService]: Error logging security alert notification', err);
     }
   },
 
@@ -235,7 +236,7 @@ export const notificationRuleService = {
         metadata: { reportId, name, type },
       });
     } catch (err) {
-      console.error('[NotificationRuleService]: Error logging report notification:', err);
+      LoggerService.error('[NotificationRuleService]: Error logging report notification', err);
     }
   },
 };
