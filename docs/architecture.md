@@ -6,7 +6,7 @@ This document provides a high-level overview of the architectural framework of t
 
 ## 🏛️ High-Level System Architecture
 
-ExpenseIQ utilizes a decoupled **Single Page Application (SPA)** client communicating with a stateless **RESTful API** backend. The backend persists transaction and budgeting logs in a **PostgreSQL** relational database database layer via **Prisma ORM**.
+ExpenseIQ utilizes a decoupled **Single Page Application (SPA)** client communicating with a stateless **RESTful API** backend. The backend persists transaction and budgeting logs in a **PostgreSQL** relational database layer via **Prisma ORM**. Automated build and deployment of the frontend static bundle is orchestrated via GitHub Actions workflows (`.github/workflows/deploy.yml`).
 
 ```mermaid
 graph TD
