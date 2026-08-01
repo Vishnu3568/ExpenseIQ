@@ -199,10 +199,5 @@ API documentation is served interactively via Swagger UI when running in develop
 
 ---
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
 ## 👤 Author
 *   **ExpenseIQ Engineering Team**
