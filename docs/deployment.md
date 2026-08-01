@@ -86,3 +86,8 @@ Set the following keys in the Vercel dashboard settings:
 *   **Symptoms:** Backend logs report `PrismaClientInitializationError: Connection pool limit reached`.
 *   **Cause:** Serverless backend environments spawn instances concurrently, and each establishes independent Prisma client connections.
 *   **Solution:** Append `&connection_limit=1` or `&pgbouncer=true` to your database URL parameters inside Neon/Prisma to limit connections.
+
+### 4. GitHub Pages Deployment "Not Found" Error
+*   **Symptoms:** Workflow fails on `actions/configure-pages` with `Error: Get Pages site failed... HttpError: Not Found`.
+*   **Cause:** Repository does not have GitHub Pages enabled, or `actions/configure-pages` was missing the `enablement: true` configuration.
+*   **Solution:** In `.github/workflows/deploy.yml`, use `actions/configure-pages@v5` with `with: enablement: true` to auto-enable Pages on build, or manually set Pages source to GitHub Actions under Repo Settings -> Pages.
