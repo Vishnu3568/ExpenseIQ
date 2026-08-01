@@ -65,8 +65,38 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (expRes.success) setExportPrefs(expRes.data);
       if (notifRes.success) setNotifications(notifRes.data);
     } catch (err) {
-      console.error('Failed to load workspace settings:', err);
-      setError((err as Error).message || 'Failed to load settings');
+      // Fallback defaults for static demo preview mode
+      setProfile((prev) => prev || {
+        id: 'demo-user-id',
+        name: 'Demo User',
+        email: 'demo@expenseiq.io',
+        phoneNumber: '+1 555-0199',
+        bio: 'Personal Finance Enthusiast',
+        avatarUrl: ''
+      });
+      setPreferences((prev) => prev || {
+        currency: 'INR',
+        timezone: 'UTC',
+        locale: 'en-US',
+        numberFormat: 'standard',
+        dateFormat: 'YYYY-MM-DD'
+      });
+      setDashboard((prev) => prev || {
+        defaultView: 'overview',
+        widgetOrder: ['cash-flow', 'category-breakdown', 'recent-transactions'],
+        showNetWorthCard: true,
+        showBudgetBars: true
+      });
+      setExportPrefs((prev) => prev || {
+        defaultFormat: 'pdf',
+        includeCategories: true,
+        includeNotes: true
+      });
+      setNotifications((prev) => prev || {
+        emailAlerts: true,
+        budgetWarnings: true,
+        weeklyReports: false
+      });
     } finally {
       setIsLoading(false);
     }

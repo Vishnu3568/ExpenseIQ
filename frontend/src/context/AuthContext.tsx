@@ -37,8 +37,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         const profileRes = await authService.me();
         setUser(profileRes.user);
-      } catch (err) {
-        // Suppress session recovery errors, user must log in manually
+      } catch {
+        const savedDemo = localStorage.getItem('expenseiq_demo_session');
+        if (savedDemo) {
+          try {
+            const parsedUser = JSON.parse(savedDemo);
+            setUser(parsedUser);
+            setAccessToken('demo-access-token');
+            setClientToken('demo-access-token');
+            return;
+          } catch (e) {
+            localStorage.removeItem('expenseiq_demo_session');
+          }
+        }
         handleLocalWipe();
       } finally {
         setIsLoading(false);
@@ -55,7 +66,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAccessToken(res.accessToken);
       setClientToken(res.accessToken);
       setUser(res.user);
-    } catch (err) {
+    } catch (err: unknown) {
+      const errorObj = err as { response?: unknown; code?: string };
+      if (!errorObj.response || errorObj.code === 'ERR_NETWORK' || window.location.hostname.includes('github.io')) {
+        const demoUser: User = {
+          id: 'demo-user-id',
+          name: email ? email.split('@')[0] : 'Demo User',
+          email: email || 'demo@expenseiq.io',
+          currency: 'INR',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setAccessToken('demo-access-token');
+        setClientToken('demo-access-token');
+        setUser(demoUser);
+        localStorage.setItem('expenseiq_demo_session', JSON.stringify(demoUser));
+        return;
+      }
       handleLocalWipe();
       throw err;
     } finally {
@@ -70,7 +97,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAccessToken(res.accessToken);
       setClientToken(res.accessToken);
       setUser(res.user);
-    } catch (err) {
+    } catch (err: unknown) {
+      const errorObj = err as { response?: unknown; code?: string };
+      if (!errorObj.response || errorObj.code === 'ERR_NETWORK' || window.location.hostname.includes('github.io')) {
+        const demoUser: User = {
+          id: 'demo-user-id',
+          name: name || 'Demo User',
+          email: email || 'demo@expenseiq.io',
+          currency: currency || 'INR',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setAccessToken('demo-access-token');
+        setClientToken('demo-access-token');
+        setUser(demoUser);
+        localStorage.setItem('expenseiq_demo_session', JSON.stringify(demoUser));
+        return;
+      }
       handleLocalWipe();
       throw err;
     } finally {
