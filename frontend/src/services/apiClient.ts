@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosAdapter, InternalAxiosRequestConfig } from 'axios';
 import { handleDemoRequest } from './demoEngine';
 
 let accessTokenMemory: string | null = null;
@@ -6,12 +6,40 @@ let logoutCallback: (() => void) | null = null;
 
 const isHostedPreview =
   typeof window !== 'undefined' &&
-  window.location.hostname.includes('github.io') &&
-  !import.meta.env.VITE_API_URL;
+  (window.location.hostname.includes('github.io') || !import.meta.env.VITE_API_URL);
+
+const customAdapter: AxiosAdapter = async (config: InternalAxiosRequestConfig) => {
+  if (isHostedPreview) {
+    let parsedData = config.data;
+    if (typeof config.data === 'string') {
+      try {
+        parsedData = JSON.parse(config.data);
+      } catch {
+        parsedData = config.data;
+      }
+    }
+    const demoRes = await handleDemoRequest(
+      config.method || 'GET',
+      config.url || '',
+      parsedData
+    );
+    return {
+      data: demoRes.data,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config,
+    };
+  }
+
+  const defaultAdapter = axios.getAdapter(axios.defaults.adapter);
+  return defaultAdapter(config);
+};
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   withCredentials: true,
+  adapter: customAdapter,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -25,35 +53,18 @@ export function setLogoutHandler(cb: () => void) {
   logoutCallback = cb;
 }
 
-// Custom Adapter / Interceptor for Hosted Demo Preview Mode
+// Request Interceptor: Inject JWT token into Authorization header
 apiClient.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     if (accessTokenMemory && config.headers) {
       config.headers.Authorization = `Bearer ${accessTokenMemory}`;
     }
-
-    if (isHostedPreview) {
-      const demoRes = await handleDemoRequest(
-        config.method || 'GET',
-        config.url || '',
-        config.data
-      );
-      // Short-circuit Axios request and return mock response via adapter resolution
-      config.adapter = async () => ({
-        data: demoRes.data,
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config,
-      });
-    }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Silent refresh & Network Error Fallback
+// Response Interceptor: Silent refresh on 401 Unauthorized
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string | null) => void;
@@ -76,13 +87,21 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Fallback to Demo Engine on connection error / unhosted static fallback
+    // Fallback to Demo Engine on connection error
     if (!error.response || error.code === 'ERR_NETWORK') {
       try {
+        let parsedData = originalRequest?.data;
+        if (typeof originalRequest?.data === 'string') {
+          try {
+            parsedData = JSON.parse(originalRequest.data);
+          } catch {
+            parsedData = originalRequest.data;
+          }
+        }
         const demoRes = await handleDemoRequest(
           originalRequest?.method || 'GET',
           originalRequest?.url || '',
-          originalRequest?.data
+          parsedData
         );
         return {
           data: demoRes.data,
