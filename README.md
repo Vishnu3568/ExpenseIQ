@@ -157,6 +157,16 @@ The application is served at `http://localhost:5173`. The backend API runs at `h
 
 ---
 
+## 🚀 GitHub Pages Automated Deployment
+
+ExpenseIQ includes an automated GitHub Actions deployment pipeline (`.github/workflows/deploy.yml`). On pushing to `main`, GitHub Actions automatically builds and publishes the React static frontend bundle to GitHub Pages.
+
+To enable GitHub Pages in your repository:
+1. Go to repository **Settings** -> **Pages**.
+2. Set **Source** to **GitHub Actions**.
+
+---
+
 ## 📡 API Documentation
 API documentation is served interactively via Swagger UI when running in development mode:
 
