@@ -1,7 +1,13 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
+import { handleDemoRequest } from './demoEngine';
 
 let accessTokenMemory: string | null = null;
 let logoutCallback: (() => void) | null = null;
+
+const isHostedPreview =
+  typeof window !== 'undefined' &&
+  window.location.hostname.includes('github.io') &&
+  !import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
@@ -19,18 +25,35 @@ export function setLogoutHandler(cb: () => void) {
   logoutCallback = cb;
 }
 
-// Request Interceptor: Inject JWT token into Authorization header
+// Custom Adapter / Interceptor for Hosted Demo Preview Mode
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config: InternalAxiosRequestConfig) => {
     if (accessTokenMemory && config.headers) {
       config.headers.Authorization = `Bearer ${accessTokenMemory}`;
     }
+
+    if (isHostedPreview) {
+      const demoRes = await handleDemoRequest(
+        config.method || 'GET',
+        config.url || '',
+        config.data
+      );
+      // Short-circuit Axios request and return mock response via adapter resolution
+      config.adapter = async () => ({
+        data: demoRes.data,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      });
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Silent refresh on 401 Unauthorized
+// Response Interceptor: Silent refresh & Network Error Fallback
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string | null) => void;
@@ -53,9 +76,28 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Fallback to Demo Engine on connection error / unhosted static fallback
+    if (!error.response || error.code === 'ERR_NETWORK') {
+      try {
+        const demoRes = await handleDemoRequest(
+          originalRequest?.method || 'GET',
+          originalRequest?.url || '',
+          originalRequest?.data
+        );
+        return {
+          data: demoRes.data,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: originalRequest,
+        };
+      } catch (demoErr) {
+        return Promise.reject(demoErr);
+      }
+    }
+
     // Check for authorization error
     if (error.response?.status === 401 && !originalRequest._retry) {
-      // Do not try to refresh if it's already an authentication request
       if (
         originalRequest.url?.includes('/auth/login') ||
         originalRequest.url?.includes('/auth/register') ||
@@ -89,7 +131,7 @@ apiClient.interceptors.response.use(
 
         const newAccessToken = response.data.accessToken;
         setClientToken(newAccessToken);
-        
+
         processQueue(null, newAccessToken);
         isRefreshing = false;
 

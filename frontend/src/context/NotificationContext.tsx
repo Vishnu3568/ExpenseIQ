@@ -38,11 +38,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     if (!isAuthenticated) return;
     try {
       const res = await notificationService.getUnreadCount();
-      if (res.success) {
+      if (res && res.success && res.data) {
         setUnreadCount(res.data.count);
       }
-    } catch (err) {
-      console.error('[NotificationProvider]: Failed to fetch unread count:', err);
+    } catch {
+      // Silent catch for background notification polling
     }
   }, [isAuthenticated]);
 
