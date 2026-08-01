@@ -17,6 +17,7 @@ The routing engine [AppRoutes.tsx](file:///e:/Project%2520Folder/ExpenseIQ/front
 To optimize initial page load speeds, the build uses dynamic bundling configurations:
 *   **Page Lazy Loading:** Every main view is dynamically imported using `React.lazy` and loaded inside a `React.Suspense` container displaying a premium loading spinner.
 *   **Rollup Chunk Optimization:** Defined manual splitting rules in `vite.config.ts` to isolate heavy charting libraries (`recharts`) and icon assets into individual async bundles. This prevents initial page load blocks and keeps the core vendor bundle below warning thresholds.
+*   **Static Base Path Resolution:** Configured `base: './'` in `vite.config.ts` to support relative asset bundling for GitHub Pages and subpath hosting environments.
 
 ---
 
