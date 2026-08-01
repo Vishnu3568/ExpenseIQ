@@ -9,11 +9,19 @@ export const NetworkStatusBanner: React.FC = () => {
 
   // Active ping function to test backend liveness
   const checkBackendHealth = useCallback(async () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const isHostedWithoutBackend = window.location.hostname.includes('github.io') && !import.meta.env.VITE_API_URL;
+    
+    if (isHostedWithoutBackend) {
+      setIsBackendConnected(true);
+      return;
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout limit
       
-      const res = await fetch('http://localhost:5000/health', {
+      const res = await fetch(`${apiUrl}/health`, {
         method: 'GET',
         signal: controller.signal,
         cache: 'no-store'
