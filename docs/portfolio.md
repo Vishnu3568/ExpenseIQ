@@ -23,6 +23,7 @@ This document provides ready-to-use summaries, resume bullets, LinkedIn posts, a
 *   **Security & Input Protection:** Integrated `sanitize-html` and `express-validator` middleware pipelines to sanitize user-editable text fields, preventing Stored XSS attacks across all endpoint routes.
 *   **Authentication & AuthZ:** Constructed secure JWT authentication with short-lived access tokens stored in memory and long-lived refresh tokens stored in HttpOnly SameSite cookies.
 *   **Performance Optimization:** Reduced frontend initial payload sizes by configuring manual chunk splitting in Vite and route-based code-splitting via `React.lazy`.
+*   **CI/CD Pipeline:** Configured automated GitHub Actions deployment workflows (`.github/workflows/deploy.yml`) to automatically build and publish the frontend bundle to GitHub Pages.
 *   **Reliability & Monitoring:** Created structured JSON logging (`LoggerService`), dynamic liveness/readiness probes (`/health`, `/ready`), and a global network status banner for automatic connection outage recovery.
 *   **Accessibility (A11y):** Implemented WCAG 2.1 AA focus management, keyboard Tab navigation trapping within modals, and semantic ARIA labeling across interactive components.
 
